@@ -1,0 +1,42 @@
+name: ดึงข้อมูลจาก TMDB
+
+on:
+  schedule:
+    - cron: '17 20 * * *'   # ทุกวัน 03:17 น. เวลาไทย
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'seed = ดึงชุดแรก, daily = อัปเดตรายวัน, ids = เฉพาะเรื่อง'
+        type: choice
+        options: [daily, seed, ids]
+        default: daily
+      ids:
+        description: 'ใช้กับโหมด ids เช่น movie:496243,tv:93405'
+        required: false
+      seed_pages:
+        description: 'จำนวนหน้าต่อชุดค้นหาตอน seed (หน้าละ 20 เรื่อง)'
+        required: false
+        default: '25'
+
+concurrency:
+  group: import-tmdb
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Import
+        run: node scripts/import-tmdb.mjs ${{ inputs.mode || 'daily' }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TMDB_TOKEN: ${{ secrets.TMDB_TOKEN }}
+          IDS: ${{ inputs.ids }}
+          SEED_PAGES: ${{ inputs.seed_pages || '25' }}

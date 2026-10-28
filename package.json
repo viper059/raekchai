@@ -1,0 +1,12 @@
+{
+  "name": "raekchai",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "import:seed": "node scripts/import-tmdb.mjs seed",
+    "import:daily": "node scripts/import-tmdb.mjs daily",
+    "import:ids": "node scripts/import-tmdb.mjs ids"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": { "pg": "8.13.1" }
+}

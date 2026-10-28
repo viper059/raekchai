@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>แรกฉาย</title>
+<meta name="description" content="แรกฉาย รวมหนังและซีรีส์ทุกเรื่อง เรียงตามปีและเดือนที่ฉายครั้งแรก ค้นได้ตามโซน ประเภท ประเทศ นักแสดง และดูว่าเรื่องไหนมีให้ดูที่แอปไหน พร้อมพากย์ไทยหรือซับไทย">
+<meta property="og:title" content="แรกฉาย">
+<meta property="og:description" content="แรกฉาย รวมหนังและซีรีส์ทุกเรื่อง เรียงตามปีและเดือนที่ฉายครั้งแรก ค้นได้ตามโซน ประเภท ประเทศ นักแสดง และดูว่าเรื่องไหนมีให้ดูที่แอปไหน พร้อมพากย์ไทยหรือซับไทย">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: ไทม์ไลน์แนวตั้ง ปีอยู่คอลัมน์ซ้าย เดือนแบ่งกลุ่ม การ์ดหนังเป็นตั๋วหนังมีรอยปรุ */
+:root {
+  --bg: #eef0f4;
+  --paper: #ffffff;
+  --ink: #161a24;
+  --muted: #5d6475;
+  --line: #d7dbe4;
+  --accent: #b3203c;        /* แดงเบาะโรงหนัง */
+  --accent-soft: #f6dfe3;
+  --gold: #9a6b12;
+  --gold-soft: #f6ecd6;
+  --shadow: 0 1px 2px rgba(22,26,36,.06), 0 4px 14px rgba(22,26,36,.05);
+  --f-display: "Anuphan", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans Thai", "Noto Sans Thai", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10131b; --paper: #181c27; --ink: #eceef4; --muted: #9aa1b3; --line: #2a3040;
+    --accent: #f0607a; --accent-soft: #3a1c25; --gold: #e2b65c; --gold-soft: #33290f;
+    --shadow: 0 1px 2px rgba(0,0,0,.4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10131b; --paper: #181c27; --ink: #eceef4; --muted: #9aa1b3; --line: #2a3040;
+  --accent: #f0607a; --accent-soft: #3a1c25; --gold: #e2b65c; --gold-soft: #33290f;
+  --shadow: 0 1px 2px rgba(0,0,0,.4);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--f-body);
+  font-size: 15px; line-height: 1.6;
+}
+.wrap {
+  max-width: 1080px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---- header ---- */
+header { padding-block: 28px 8px; }
+.brand { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.brand h1 {
+  font-family: var(--f-display); font-weight: 700; font-size: clamp(34px, 6vw, 48px);
+  line-height: 1; margin: 0; letter-spacing: -.01em;
+}
+.brand h1 span { color: var(--accent); }
+.brand p { margin: 0; color: var(--muted); }
+.note {
+  margin-top: 14px; font-size: 13px; color: var(--gold);
+  background: var(--gold-soft); border-radius: 8px; padding: 8px 12px;
+}
+
+.tabs { display: flex; gap: 4px; margin-top: 20px; border-bottom: 1px solid var(--line); }
+.tab {
+  background: none; border: 0; padding: 10px 14px; cursor: pointer; color: var(--muted);
+  font-weight: 600; border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tab[aria-selected="true"] { color: var(--ink); border-color: var(--accent); }
+
+/* ---- filters ---- */
+.filters {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--bg); padding-block: 14px 12px; display: grid; gap: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.search {
+  flex: 1 1 260px; min-width: 0; padding: 10px 14px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--paper);
+}
+select {
+  padding: 9px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--paper);
+}
+.chip {
+  border: 1px solid var(--line); background: var(--paper); border-radius: 999px;
+  padding: 5px 12px; cursor: pointer; font-size: 14px;
+}
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.count { margin-left: auto; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+/* ---- timeline ---- */
+.timeline { padding-block: 8px 60px; }
+.year {
+  display: grid; grid-template-columns: 120px 1fr; gap: 20px;
+  padding-block: 22px; border-bottom: 1px dashed var(--line);
+}
+.year-label {
+  font-family: var(--f-mono); font-weight: 500; font-size: 30px; line-height: 1;
+  color: var(--accent); align-self: start; position: sticky; top: 150px;
+  font-variant-numeric: tabular-nums;
+}
+.year-label small { display: block; font-size: 12px; color: var(--muted); margin-top: 6px; font-family: var(--f-body); }
+.months { display: grid; gap: 16px; min-width: 0; }
+.month h3 {
+  margin: 0 0 8px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); font-weight: 600;
+}
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 10px; }
+
+.ticket {
+  display: grid; grid-template-columns: 76px 1fr; text-align: left; cursor: pointer;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: var(--shadow); padding: 0; overflow: hidden; position: relative;
+  transition: transform .15s ease, border-color .15s ease;
+}
+.ticket:hover { transform: translateY(-2px); border-color: var(--accent); }
+.poster {
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 8px; color: #fff; min-height: 108px; position: relative;
+}
+.poster b { font-family: var(--f-display); font-size: 22px; line-height: 1; }
+.poster i { font-style: normal; font-family: var(--f-mono); font-size: 10px; opacity: .85; }
+.stub {
+  padding: 10px 12px 10px 14px; min-width: 0; display: grid; gap: 4px; align-content: start;
+  border-left: 2px dashed var(--line);
+}
+.stub .t { font-weight: 600; line-height: 1.35; }
+.stub .e { font-size: 13px; color: var(--muted); line-height: 1.3; }
+.meta { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.tag {
+  font-size: 11px; padding: 1px 7px; border-radius: 6px; background: var(--bg); color: var(--muted);
+  white-space: nowrap;
+}
+.tag.cc { font-family: var(--f-mono); background: var(--ink); color: var(--bg); }
+.tag.pf { background: var(--accent-soft); color: var(--accent); }
+.tag.series { background: var(--gold); color: var(--paper); font-weight: 600; }
+.seasons { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.seasons li { display: grid; grid-template-columns: 70px 1fr auto; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.seasons .n { font-family: var(--f-mono); color: var(--accent); font-size: 13px; }
+.seasons .ep { color: var(--muted); font-size: 13px; }
+.tag.pf b { font-weight: 600; }
+.watch { width: 100%; border-collapse: collapse; font-size: 14px; }
+.watch th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 500; padding: 4px 0; border-bottom: 1px solid var(--line); }
+.watch td { padding: 6px 0; border-bottom: 1px solid var(--line); }
+.watch td + td, .watch th + th { padding-left: 10px; }
+.yes { color: var(--accent); font-weight: 600; }
+.no { color: var(--muted); }
+.tag.warn { background: var(--gold-soft); color: var(--gold); }
+.empty { padding: 40px 0; color: var(--muted); text-align: center; }
+.poster.img { background-size: cover !important; background-position: center !important; }
+.poster.img b, .poster.img i { display: none; }
+
+.tmdb { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; }
+.tmdb input {
+  flex: 1 1 240px; min-width: 0; padding: 8px 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--paper); font-family: var(--f-mono); font-size: 12px;
+}
+.tmdb button {
+  padding: 8px 14px; border-radius: 10px; border: 0; cursor: pointer;
+  background: var(--accent); color: #fff; font-weight: 600;
+}
+.tmdb button:disabled { opacity: .6; cursor: wait; }
+.tmdb .status { color: var(--muted); width: 100%; }
+.credit { color: var(--muted); font-size: 12px; padding-block: 0 30px; }
+
+/* ---- detail drawer ---- */
+.scrim { position: fixed; inset: 0; background: rgba(10,12,18,.45); z-index: 20; }
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(520px, 100%); z-index: 21;
+  background: var(--paper); overflow-y: auto; box-shadow: -8px 0 30px rgba(0,0,0,.2);
+  padding: calc(20px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) calc(30px + env(safe-area-inset-bottom, 0px)) 20px;
+}
+.close {
+  float: right; background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+  padding: 4px 10px; cursor: pointer;
+}
+.d-head { display: grid; grid-template-columns: 110px 1fr; gap: 16px; margin-top: 8px; clear: both; }
+.d-head .poster { min-height: 160px; border-radius: 10px; }
+.d-head h2 { font-family: var(--f-display); margin: 0; font-size: 24px; line-height: 1.2; text-wrap: balance; }
+.d-head .e { color: var(--muted); }
+.release {
+  margin-top: 8px; font-family: var(--f-mono); font-size: 13px;
+  display: inline-block; padding: 3px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent);
+}
+.sec { margin-top: 22px; }
+.sec h4 {
+  margin: 0 0 8px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+}
+.cast { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.cast li { display: grid; grid-template-columns: 26px 1fr auto; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+.cast .n { font-family: var(--f-mono); color: var(--muted); font-size: 12px; padding-top: 2px; }
+.cast .ch { color: var(--muted); font-size: 13px; text-align: right; }
+.plain { margin: 0; }
+.rule { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+/* ---- schema tab ---- */
+.schema { padding-block: 24px 60px; display: grid; gap: 28px; }
+.schema h2 { font-family: var(--f-display); margin: 0 0 6px; font-size: 22px; }
+.schema .lead { color: var(--muted); margin: 0; max-width: 65ch; }
+.groups { display: grid; gap: 20px; }
+.group h3 { margin: 0 0 10px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.tbl { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.tbl header {
+  padding: 8px 12px; font-family: var(--f-mono); font-weight: 500;
+  border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 8px;
+}
+.tbl header span { font-family: var(--f-body); font-size: 12px; color: var(--muted); font-weight: 400; }
+.group.core .tbl header { background: var(--accent-soft); color: var(--accent); }
+.tbl ul { list-style: none; margin: 0; padding: 6px 12px 10px; font-size: 13px; }
+.tbl li { display: flex; justify-content: space-between; gap: 10px; padding: 2px 0; }
+.tbl li code { font-family: var(--f-mono); font-size: 12px; }
+.tbl li em { font-style: normal; color: var(--muted); font-size: 12px; text-align: right; }
+.tbl li.k code { color: var(--accent); }
+.rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.rules div { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.rules b { display: block; margin-bottom: 2px; }
+.rules p { margin: 0; font-size: 13px; color: var(--muted); }
+.code-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+.copy {
+  border: 1px solid var(--line); background: var(--paper); border-radius: 8px; padding: 6px 12px; cursor: pointer;
+}
+pre {
+  margin: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+  padding: 16px; overflow: auto; max-height: 560px; font-family: var(--f-mono); font-size: 12.5px; line-height: 1.55;
+}
+
+/* ---- ผู้จัดทำ ---- */
+.maker { border-top: 1px solid var(--line); padding-block: 32px 48px; display: grid; grid-template-columns: auto 1fr; gap: 20px 28px; align-items: start; }
+.maker .mono {
+  width: 64px; height: 64px; border-radius: 50%; border: 1px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-display); font-size: 28px; font-weight: 700; color: var(--gold); background: var(--gold-soft);
+}
+.maker .eyebrow { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.maker h2 { font-family: var(--f-display); margin: 2px 0 0; font-size: 22px; line-height: 1.3; }
+.maker .en { font-family: var(--f-mono); font-size: 12px; letter-spacing: .2em; color: var(--gold); }
+.contacts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.contact {
+  display: inline-flex; flex-direction: column; gap: 0; padding: 8px 14px; min-height: 44px; justify-content: center;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); text-decoration: none;
+}
+a.contact:hover { border-color: var(--accent); }
+.contact small { font-size: 11px; color: var(--muted); letter-spacing: .06em; }
+.contact span { font-family: var(--f-mono); font-size: 14px; user-select: all; }
+.contact span.th { font-family: var(--f-body); user-select: text; }
+.maker .place { margin-top: 10px; font-size: 13px; color: var(--muted); }
+
+/* ---- ถูกใจ ---- */
+.tag.likes { background: var(--accent-soft); color: var(--accent); font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.like {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 16px;
+  border-radius: 999px; border: 1px solid var(--accent); background: var(--paper); color: var(--accent);
+  cursor: pointer; font-weight: 600; font-variant-numeric: tabular-nums;
+}
+.like svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+.like[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.like[aria-pressed="true"] svg { fill: currentColor; }
+.like.sm { min-height: 36px; padding: 4px 12px; font-size: 13px; }
+.like.sm svg { width: 15px; height: 15px; }
+.d-like { margin-top: 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.d-like .rk { font-size: 13px; color: var(--muted); }
+.d-like .rk b { color: var(--ink); font-family: var(--f-mono); }
+
+/* ---- อันดับ ---- */
+.ranking { padding-block: 20px 60px; display: grid; gap: 16px; }
+.ranking .head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ranking h2 { font-family: var(--f-display); margin: 0 12px 0 0; font-size: 22px; }
+.rank-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.rank-row {
+  display: grid; grid-template-columns: 56px 52px 1fr auto; gap: 14px; align-items: center;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px 10px 10px;
+}
+.rank-row .no {
+  font-family: var(--f-mono); font-size: 26px; font-weight: 500; text-align: center; color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.rank-row.top .no { color: var(--accent); }
+.rank-row.top { border-color: var(--accent); }
+.rank-row .poster { min-height: 72px; border-radius: 6px; padding: 4px; }
+.rank-row .poster b { font-size: 18px; }
+.rank-row .poster i { display: none; }
+.rank-row .info { min-width: 0; display: grid; gap: 2px; }
+.rank-row .info button { all: unset; cursor: pointer; font-weight: 600; line-height: 1.35; }
+.rank-row .info button:hover { color: var(--accent); }
+.rank-row .info button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rank-row .sub { font-size: 13px; color: var(--muted); }
+.bar { height: 4px; border-radius: 2px; background: var(--line); margin-top: 6px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); }
+
+@media (max-width: 640px) {
+  .rank-row { grid-template-columns: 36px 44px 1fr; }
+  .rank-row .no { font-size: 20px; }
+  .rank-row .like { grid-column: 3; justify-self: start; }
+  .maker { grid-template-columns: 1fr; }
+  .year { grid-template-columns: 1fr; gap: 10px; }
+  .year-label { position: static; display: flex; align-items: baseline; gap: 10px; }
+  .year-label small { margin: 0; }
+  .cards { grid-template-columns: 1fr; }
+  .count { margin-left: 0; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .ticket { transition: none; } .ticket:hover { transform: none; } }
+
+/* ---- production additions ---- */
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.account { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.btn {
+  min-height: 40px; padding: 8px 14px; border-radius: 10px; cursor: pointer; font-weight: 600;
+  border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn:disabled { opacity: .6; cursor: wait; }
+.more { display: flex; justify-content: center; padding-block: 8px 40px; }
+.status-line { color: var(--muted); font-size: 14px; padding-block: 24px; text-align: center; }
+.status-line.err { color: var(--accent); }
+.synopsis { margin: 0; line-height: 1.7; max-width: 65ch; }
+.watch a { color: var(--accent); }
+.plogo { width: 22px; height: 22px; border-radius: 5px; vertical-align: middle; margin-right: 6px; }
+.modal {
+  position: fixed; inset: 0; z-index: 30; display: grid; place-items: center;
+  background: rgba(10,12,18,.5); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.modal form {
+  background: var(--paper); border-radius: 14px; padding: 22px; width: min(400px, 100%);
+  display: grid; gap: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.25);
+}
+.modal h3 { margin: 0; font-family: var(--f-display); font-size: 20px; }
+.modal p { margin: 0; color: var(--muted); font-size: 14px; }
+.modal input {
+  padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg);
+}
+.modal .row { justify-content: flex-end; }
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 40;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: 14px; max-width: calc(100% - 32px);
+}
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.seg button { border: 0; background: var(--paper); padding: 6px 14px; cursor: pointer; font-size: 14px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.about { max-width: 65ch; color: var(--muted); line-height: 1.75; margin: 0; }
+.attrib { font-size: 12px; color: var(--muted); margin-top: 14px; line-height: 1.6; }
+.attrib a { color: inherit; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <h1>แรก<span>ฉาย</span></h1>
+        <p>หนังและซีรีส์ทุกเรื่อง เรียงตามวันที่ได้ดูครั้งแรก พร้อมบอกว่าดูได้ที่ไหน มีพากย์ไทยไหม</p>
+      </div>
+      <div class="account" id="account"></div>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-timeline" aria-selected="true">ไทม์ไลน์</button>
+      <button class="tab" role="tab" id="tab-ranking" aria-selected="false">อันดับคนชอบ</button>
+    </div>
+  </header>
+
+  <section id="view-timeline">
+    <div class="filters">
+      <div class="row">
+        <input id="q" class="search" type="search" placeholder="ค้นหาชื่อเรื่อง นักแสดง ผู้กำกับ หรือค่าย" aria-label="ค้นหา">
+        <select id="genre" aria-label="ประเภท"><option value="">ทุกประเภท</option></select>
+        <select id="platform" aria-label="แอปสตรีม"><option value="">ทุกแอป</option></select>
+        <select id="audio" aria-label="เสียงและซับ">
+          <option value="">ทุกเสียง/ซับ</option>
+          <option value="th">มีเสียงไทย</option>
+          <option value="sub">มีซับไทย</option>
+        </select>
+      </div>
+      <div class="row" id="kinds"></div>
+      <div class="row" id="zones"><span class="count" id="count"></span></div>
+    </div>
+    <div class="timeline" id="timeline"><p class="status-line">กำลังโหลด…</p></div>
+    <div class="more"><button class="btn" id="more" hidden>โหลดเพิ่ม</button></div>
+  </section>
+
+  <section id="view-ranking" class="ranking" hidden>
+    <div class="head">
+      <h2>อันดับคนชอบ</h2>
+      <div class="seg" id="rank-period">
+        <button data-period="all" aria-pressed="true">ตลอดกาล</button>
+        <button data-period="30" aria-pressed="false">30 วันล่าสุด</button>
+      </div>
+      <div class="row" id="rank-kinds"></div>
+    </div>
+    <ol class="rank-list" id="rank-list"></ol>
+  </section>
+
+  <footer class="maker" aria-label="ผู้จัดทำ">
+    <div class="mono" aria-hidden="true">ธ</div>
+    <div>
+      <div class="eyebrow">เกี่ยวกับแรกฉาย</div>
+      <p class="about">แรกฉาย คือคลังหนังและซีรีส์ที่เรียงตามช่วงเวลาที่เรื่องนั้นเปิดให้คนดูครั้งแรก เลื่อนดูย้อนหลังได้ทีละปีทีละเดือน แต่ละเรื่องบอกนักแสดงนำ ผู้กำกับ ค่าย ประเทศ และบอกว่าตอนนี้ดูได้ที่แอปไหน มีพากย์ไทยหรือซับไทย กดถูกใจเรื่องที่ชอบ แล้วดูว่าเรื่องไหนคนชอบมากที่สุดในหน้าอันดับ</p>
+      <div class="eyebrow" style="margin-top:20px">ผู้จัดทำ</div>
+      <h2>ธนฤกษ์ โคตรประทุม</h2>
+      <div class="en">THANARUEK</div>
+      <div class="contacts">
+        <a class="contact" href="tel:0814918632"><small>โทร · สายหลัก</small><span>081-491-8632</span></a>
+        <a class="contact" href="tel:0633139183"><small>โทร · สายสำรอง</small><span>063-313-9183</span></a>
+        <div class="contact"><small>FACEBOOK</small><span class="th">ธนฤกษ์ โคตรประทุม</span></div>
+      </div>
+      <div class="place">พระนครศรีอยุธยา · ประเทศไทย</div>
+      <p class="attrib">ข้อมูลหนัง โปสเตอร์ และนักแสดงจาก <a href="https://www.themoviedb.org/" rel="noopener">TMDB</a> เว็บนี้ใช้ TMDB API แต่ไม่ได้รับการรับรองจาก TMDB · ข้อมูลช่องทางสตรีมจาก <a href="https://www.justwatch.com/" rel="noopener">JustWatch</a></p>
+    </div>
+  </footer>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-label="รายละเอียด"></aside>
+
+<div class="modal" id="login" hidden>
+  <form id="login-form">
+    <h3>เข้าสู่ระบบเพื่อกดถูกใจ</h3>
+    <p>ใส่อีเมล เราจะส่งลิงก์เข้าสู่ระบบไปให้ กดลิงก์ในอีเมลแล้วกลับมาที่หน้านี้ได้เลย ไม่ต้องตั้งรหัสผ่าน</p>
+    <input id="login-email" type="email" required autocomplete="email" placeholder="you@example.com" aria-label="อีเมล">
+    <p id="login-msg" role="status"></p>
+    <div class="row">
+      <button type="button" class="btn" id="login-cancel">ยกเลิก</button>
+      <button type="submit" class="btn primary" id="login-go">ส่งลิงก์</button>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = 'https://auwoocybikywwiskvuel.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_Lw_96yj9j2MGL1dTwkb-kA_hstO54O2';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const ZONES = { thai: 'ไทย', asia: 'เอเชีย', hollywood: 'ฮอลลีวูด', europe: 'ยุโรป', other: 'อื่น ๆ' };
+const KINDS = { all: 'หนังและซีรีส์', movie: 'หนัง', series: 'ซีรีส์' };
+const STATUS = { airing: 'กำลังออกอากาศ', ended: 'จบแล้ว', canceled: 'ยกเลิก' };
+const OFFER = { stream: 'สมาชิก', free: 'ดูฟรี', rent: 'เช่า', buy: 'ซื้อ' };
+const AUDIO = { original: 'เสียงไทยต้นฉบับ', dub: 'พากย์ไทย', none: '—' };
+const SOURCE = { theatrical: 'เข้าโรงครั้งแรก', festival: 'ฉายครั้งแรกในเทศกาล', broadcast: 'ออกฉายครั้งแรก', manual: 'กรอกโดยแอดมิน' };
+const MONTHS = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const MON_S = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const PAGE = 120;
+const TIMELINE_COLS = 'id,kind,title_th,title_en,poster_url,release_year,release_month,like_count,country,zone,season_count,genres,platforms_th,platforms_thai_audio';
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => (n || 0).toLocaleString('th-TH');
+const nameOf = t => t.title_th || t.title_en;
+const safeUrl = u => /^https:\/\//.test(u || '') ? u : '';
+const posterBg = t => { const h = (t.id * 47 + t.release_year) % 360; return `linear-gradient(160deg, hsl(${h} 45% 34%), hsl(${(h + 40) % 360} 55% 18%))`; };
+const initial = t => ((t.title_en || '').replace(/^The /, '').match(/[A-Za-z0-9]/) || [nameOf(t)[0] || '?'])[0].toUpperCase();
+const posterAttr = t => safeUrl(t.poster_url)
+  ? `class="poster img" style="background:url('${esc(t.poster_url)}'), ${posterBg(t)}"`
+  : `class="poster" style="background:${posterBg(t)}"`;
+const HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>';
+
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.hidden = false;
+  clearTimeout(toast.timer); toast.timer = setTimeout(() => { t.hidden = true; }, 3200);
+}
+
+// ---------- state ----------
+const state = { q: '', kind: 'all', zone: 'all', genre: '', platform: '', audio: '' };
+let items = [], offset = 0, done = false, loading = false, reqId = 0;
+let user = null;
+const myLikes = new Set();
+const counts = new Map();   // id -> like_count ล่าสุดที่รู้
+
+// ---------- filters ----------
+function chips(rowSel, entries, key, onPick, before) {
+  const row = $(rowSel);
+  entries.forEach(([k, label]) => {
+    const b = document.createElement('button');
+    b.className = 'chip'; b.textContent = label; b.dataset[key] = k;
+    b.setAttribute('aria-pressed', k === 'all');
+    b.onclick = () => { row.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', x.dataset[key] === k)); onPick(k); };
+    before ? row.insertBefore(b, before) : row.appendChild(b);
+  });
+}
+chips('#kinds', Object.entries(KINDS), 'kind', k => { state.kind = k; reload(); });
+chips('#zones', [['all', 'ทุกโซน'], ...Object.entries(ZONES)], 'zone', k => { state.zone = k; reload(); }, $('#count'));
+let qTimer;
+$('#q').oninput = e => { clearTimeout(qTimer); qTimer = setTimeout(() => { state.q = e.target.value.trim(); reload(); }, 300); };
+['genre', 'platform', 'audio'].forEach(id => { $('#' + id).onchange = e => { state[id] = e.target.value; reload(); }; });
+
+async function loadOptions() {
+  const [g, p] = await Promise.all([
+    sb.from('genres').select('name_th').order('name_th'),
+    sb.from('platforms').select('name').order('name')
+  ]);
+  (g.data || []).forEach(x => $('#genre').insertAdjacentHTML('beforeend', `<option>${esc(x.name_th)}</option>`));
+  (p.data || []).forEach(x => $('#platform').insertAdjacentHTML('beforeend', `<option>${esc(x.name)}</option>`));
+}
+
+function applyFilters(query) {
+  if (state.kind !== 'all') query = query.eq('kind', state.kind);
+  if (state.zone !== 'all') query = query.eq('zone', state.zone);
+  if (state.genre) query = query.contains('genres', [state.genre]);
+  if (state.audio === 'th') query = state.platform ? query.contains('platforms_thai_audio', [state.platform]) : query.neq('platforms_thai_audio', '{}');
+  else if (state.platform) query = query.contains('platforms_th', [state.platform]);
+  return query;
+}
+
+async function fetchPage() {
+  if (loading || done) return;
+  loading = true; $('#more').disabled = true;
+  const my = ++reqId;
+  let res;
+  if (state.q) {
+    // ค้นหาผ่านฟังก์ชันในฐานข้อมูล (รวมชื่อนักแสดง ผู้กำกับ ค่าย)
+    res = await applyFilters(sb.rpc('search_titles', { q: state.q, lim: 200 }).select(TIMELINE_COLS));
+    done = true;
+  } else {
+    res = await applyFilters(sb.from('title_timeline').select(TIMELINE_COLS, { count: offset === 0 ? 'exact' : undefined }))
+      .order('release_year', { ascending: false })
+      .order('release_month', { ascending: false, nullsFirst: false })
+      .order('id', { ascending: false })
+      .range(offset, offset + PAGE - 1);
+  }
+  if (my !== reqId) return;   // มีการเปลี่ยนตัวกรองระหว่างโหลด
+  loading = false; $('#more').disabled = false;
+  if (res.error) {
+    $('#timeline').innerHTML = `<p class="status-line err">โหลดข้อมูลไม่สำเร็จ: ${esc(res.error.message)} ลองรีเฟรชหน้าอีกครั้ง</p>`;
+    return;
+  }
+  let rows = res.data || [];
+  if (offset === 0 && res.count != null) $('#count').textContent = `${fmt(res.count)} เรื่อง`;
+  if (state.q) $('#count').textContent = `พบ ${fmt(rows.length)} เรื่อง`;
+  rows.forEach(r => counts.set(r.id, r.like_count));
+  items = items.concat(rows);
+  offset += rows.length;
+  if (rows.length < PAGE) done = true;
+  $('#more').hidden = done;
+  renderTimeline();
+}
+
+// ซับไทย: กรองจากตาราง title_platforms เพราะ view ไม่มีคอลัมน์นี้ในตัวกรองหลัก
+async function reload() {
+  items = []; offset = 0; done = false; loading = false;
+  $('#timeline').innerHTML = '<p class="status-line">กำลังโหลด…</p>';
+  $('#more').hidden = true;
+  if (state.audio === 'sub') return loadSubOnly();
+  fetchPage();
+}
+async function loadSubOnly() {
+  const my = ++reqId;
+  let q = sb.from('title_platforms').select('title_id, platforms!inner(name)').eq('region', 'TH').eq('sub_th', true).limit(2000);
+  if (state.platform) q = q.eq('platforms.name', state.platform);
+  const { data, error } = await q;
+  if (my !== reqId) return;
+  if (error) { $('#timeline').innerHTML = `<p class="status-line err">โหลดข้อมูลไม่สำเร็จ: ${esc(error.message)}</p>`; return; }
+  const ids = [...new Set((data || []).map(r => r.title_id))].slice(0, 500);
+  if (!ids.length) { items = []; $('#count').textContent = 'พบ 0 เรื่อง'; renderTimeline(); return; }
+  const res = await sb.from('title_timeline').select(TIMELINE_COLS).in('id', ids)
+    .order('release_year', { ascending: false }).order('release_month', { ascending: false, nullsFirst: false });
+  if (my !== reqId) return;
+  items = (res.data || []).filter(r => (state.kind === 'all' || r.kind === state.kind) && (state.zone === 'all' || r.zone === state.zone) && (!state.genre || r.genres.includes(state.genre)));
+  if (state.q) { const q = state.q.toLowerCase(); items = items.filter(r => (r.title_th || '').toLowerCase().includes(q) || r.title_en.toLowerCase().includes(q)); }
+  items.forEach(r => counts.set(r.id, r.like_count));
+  done = true;
+  $('#count').textContent = `พบ ${fmt(items.length)} เรื่อง`;
+  renderTimeline();
+}
+$('#more').onclick = fetchPage;
+
+// ---------- timeline ----------
+function ticket(t) {
+  return `<button class="ticket" data-id="${t.id}">
+    <span ${posterAttr(t)}><b>${esc(initial(t))}</b><i>${t.release_year}${t.release_month ? '·' + String(t.release_month).padStart(2, '0') : ''}</i></span>
+    <span class="stub">
+      <span class="t">${esc(nameOf(t))}</span>
+      ${t.title_th ? `<span class="e">${esc(t.title_en)}</span>` : ''}
+      <span class="meta">
+        ${t.kind === 'series' ? `<span class="tag series">ซีรีส์${t.season_count ? ' · ' + t.season_count + ' ซีซัน' : ''}</span>` : ''}
+        ${counts.get(t.id) ? `<span class="tag likes">♥ ${fmt(counts.get(t.id))}</span>` : ''}
+        ${t.country ? `<span class="tag cc">${esc(t.country)}</span>` : ''}
+        ${t.genres.slice(0, 2).map(g => `<span class="tag">${esc(g)}</span>`).join('')}
+        ${t.platforms_th.slice(0, 3).map(p => `<span class="tag pf">${esc(p)}</span>`).join('')}
+      </span>
+    </span>
+  </button>`;
+}
+function renderTimeline() {
+  if (!items.length) {
+    const filtered = state.q || state.kind !== 'all' || state.zone !== 'all' || state.genre || state.platform || state.audio;
+    $('#timeline').innerHTML = `<p class="status-line">${filtered ? 'ไม่พบเรื่องที่ตรงกับตัวกรอง ลองล้างคำค้นหรือเลือกตัวกรองอื่น' : 'ยังไม่มีหนังในฐานข้อมูล ระบบกำลังดึงข้อมูลจาก TMDB'}</p>`;
+    return;
+  }
+  const years = new Map();
+  items.forEach(t => { if (!years.has(t.release_year)) years.set(t.release_year, []); years.get(t.release_year).push(t); });
+  $('#timeline').innerHTML = [...years.entries()].map(([y, list]) => {
+    const byMonth = new Map();
+    list.forEach(t => { const k = t.release_month || 0; if (!byMonth.has(k)) byMonth.set(k, []); byMonth.get(k).push(t); });
+    const keys = [...byMonth.keys()].sort((a, b) => (b || -1) - (a || -1));
+    return `<div class="year">
+      <div class="year-label">${y}<small>${list.length} เรื่อง · พ.ศ. ${y + 543}</small></div>
+      <div class="months">${keys.map(k => `<div class="month">
+        <h3>${k ? MONTHS[k - 1] : 'ไม่ระบุเดือน'}</h3>
+        <div class="cards">${byMonth.get(k).map(ticket).join('')}</div>
+      </div>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+$('#timeline').addEventListener('click', e => { const t = e.target.closest('.ticket'); if (t) openDetail(+t.dataset.id); });
+
+// ---------- detail ----------
+const DETAIL = `id,kind,title_th,title_en,title_original,release_year,release_month,release_source,runtime_min,series_status,end_year,synopsis_th,synopsis_en,poster_url,like_count,
+  title_countries(country,is_primary,countries(name_th,zone)),
+  title_genres(genres(name_th)),
+  title_companies(billing,companies(name)),
+  title_cast(billing,character,people(name_th,name_en)),
+  title_creators(role,people(name_th,name_en)),
+  title_networks(networks(name)),
+  title_platforms(region,offer,audio_th,sub_th,link,platforms(name,logo_url)),
+  seasons(season_number,release_year,release_month,episode_count)`;
+
+async function openDetail(id, keepFocus) {
+  const d = $('#drawer');
+  d.dataset.id = id;
+  if (!keepFocus) { d.innerHTML = '<button class="close" id="close">ปิด</button><p class="status-line">กำลังโหลด…</p>'; d.hidden = false; $('#scrim').hidden = false; $('#close').onclick = closeDetail; $('#close').focus(); }
+  const { data: t, error } = await sb.from('titles').select(DETAIL).eq('id', id).single();
+  if (+d.dataset.id !== id || d.hidden) return;
+  if (error) { d.innerHTML = `<button class="close" id="close">ปิด</button><p class="status-line err">โหลดไม่สำเร็จ: ${esc(error.message)}</p>`; $('#close').onclick = closeDetail; return; }
+  counts.set(t.id, t.like_count);
+  const isS = t.kind === 'series';
+  const person = p => p.people.name_th || p.people.name_en;
+  const cast = t.title_cast.sort((a, b) => a.billing - b.billing);
+  const creators = t.title_creators.filter(c => c.role === (isS ? 'creator' : 'director'));
+  const countries = t.title_countries.sort((a, b) => b.is_primary - a.is_primary);
+  const primary = countries[0];
+  const seasons = t.seasons.filter(s => s.season_number > 0).sort((a, b) => a.season_number - b.season_number);
+  const plats = t.title_platforms.filter(p => p.region === 'TH');
+  const synopsis = t.synopsis_th || t.synopsis_en;
+  d.innerHTML = `
+    <button class="close" id="close">ปิด</button>
+    <div class="d-head">
+      <div ${posterAttr(t)}><b>${esc(initial(t))}</b><i>${esc(t.title_en)}</i></div>
+      <div>
+        <h2>${esc(nameOf(t))}</h2>
+        ${t.title_th ? `<div class="e">${esc(t.title_en)}</div>` : ''}
+        ${t.title_original && t.title_original !== t.title_en ? `<div class="e">${esc(t.title_original)}</div>` : ''}
+        <span class="release">${t.release_month ? MON_S[t.release_month - 1] + ' ' : ''}${t.release_year} · ${isS ? 'ซีซัน 1 ออกอากาศครั้งแรก' : SOURCE[t.release_source]}</span>
+        <div class="d-like">${likeBtn(t)}</div>
+      </div>
+    </div>
+    ${synopsis ? `<div class="sec"><h4>เรื่องย่อ</h4><p class="synopsis">${esc(synopsis)}</p></div>` : ''}
+    <div class="sec"><h4>นักแสดงนำ (เรียงตามเครดิต)</h4>
+      ${cast.length ? `<ol class="cast">${cast.map((c, i) => `<li><span class="n">${i + 1}</span><span>${esc(person(c))}</span><span class="ch">${esc(c.character)}</span></li>`).join('')}</ol>` : '<p class="plain">—</p>'}
+    </div>
+    ${isS ? `<div class="sec"><h4>ซีซัน${t.series_status ? ' · ' + STATUS[t.series_status] : ''}${t.end_year ? ' ปี ' + t.end_year : ''}</h4>
+      ${seasons.length ? `<ol class="seasons">${seasons.map(s => `<li><span class="n">ซีซัน ${s.season_number}</span><span>${s.release_month ? MON_S[s.release_month - 1] + ' ' : ''}${s.release_year}</span><span class="ep">${s.episode_count ? s.episode_count + ' ตอน' : ''}</span></li>`).join('')}</ol>` : '<p class="plain">—</p>'}
+    </div>
+    <div class="sec"><h4>ออกอากาศครั้งแรกทาง</h4><p class="plain">${t.title_networks.map(n => esc(n.networks.name)).join(', ') || '—'}</p></div>` : ''}
+    <div class="sec"><h4>${isS ? 'ผู้สร้าง' : 'ผู้กำกับ'}</h4><p class="plain">${creators.map(c => esc(person(c))).join(', ') || '—'}</p></div>
+    <div class="sec"><h4>${isS ? 'บริษัทผู้ผลิต' : 'ค่ายหนัง'}</h4><p class="plain">${t.title_companies.sort((a, b) => a.billing - b.billing).map(c => esc(c.companies.name)).join(', ') || '—'}</p></div>
+    <div class="sec"><h4>ประเทศ · โซน</h4>
+      <div class="meta">${countries.map(c => `<span class="tag ${c.is_primary ? 'cc' : ''}">${esc(c.countries.name_th)}${c.is_primary ? ' (หลัก)' : ''}</span>`).join('') || '—'}</div>
+      ${primary ? `<p class="rule">โซน${ZONES[primary.countries.zone]} คำนวณจากประเทศหลัก</p>` : ''}
+    </div>
+    <div class="sec"><h4>ประเภท</h4><div class="meta">${t.title_genres.map(g => `<span class="tag">${esc(g.genres.name_th)}</span>`).join('') || '—'}</div></div>
+    <div class="sec"><h4>ดูได้ที่ (ไทย)</h4>
+      ${plats.length ? `<table class="watch"><thead><tr><th>แอป</th><th>แบบ</th><th>เสียงไทย</th><th>ซับไทย</th></tr></thead><tbody>
+        ${plats.map(p => `<tr>
+          <td>${safeUrl(p.platforms.logo_url) ? `<img class="plogo" src="${esc(p.platforms.logo_url)}" alt="">` : ''}${safeUrl(p.link) ? `<a href="${esc(p.link)}" rel="noopener">${esc(p.platforms.name)}</a>` : esc(p.platforms.name)}</td>
+          <td>${OFFER[p.offer]}</td>
+          <td class="${p.audio_th !== 'none' ? 'yes' : 'no'}">${AUDIO[p.audio_th]}</td>
+          <td class="${p.sub_th ? 'yes' : 'no'}">${p.sub_th ? 'มี' : '—'}</td></tr>`).join('')}
+      </tbody></table>
+      <p class="rule">เสียงไทยและซับไทยตรวจโดยแอดมิน ช่องที่เป็น — คือยังไม่มีข้อมูลหรือไม่มี</p>` : '<div class="meta"><span class="tag">ยังไม่พบในแอปสตรีมในไทย</span></div>'}
+    </div>`;
+  $('#close').onclick = closeDetail;
+  if (keepFocus) $('#drawer [data-like]')?.focus();
+}
+function closeDetail() { $('#drawer').hidden = true; $('#scrim').hidden = true; $('#drawer').dataset.id = ''; }
+$('#scrim').onclick = closeDetail;
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDetail(); closeLogin(); } });
+
+// ---------- likes ----------
+const likeBtn = (t, small) => {
+  const on = myLikes.has(t.id);
+  return `<button class="like${small ? ' sm' : ''}" data-like="${t.id}" aria-pressed="${on}" aria-label="${on ? 'เลิกถูกใจ' : 'ถูกใจ'} ${esc(nameOf(t))}">${HEART}<span>${fmt(counts.get(t.id) ?? t.like_count)}</span></button>`;
+};
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-like]');
+  if (!b) return;
+  e.stopPropagation();
+  if (!user) { openLogin(); return; }
+  const id = +b.dataset.like;
+  b.disabled = true;
+  const { data, error } = await sb.rpc('toggle_like', { p_title_id: id });
+  b.disabled = false;
+  if (error) { toast('กดถูกใจไม่สำเร็จ ลองใหม่อีกครั้ง'); return; }
+  const r = data[0];
+  r.liked ? myLikes.add(id) : myLikes.delete(id);
+  counts.set(id, r.like_count);
+  document.querySelectorAll(`[data-like="${id}"]`).forEach(x => {
+    x.setAttribute('aria-pressed', r.liked);
+    x.querySelector('span').textContent = fmt(r.like_count);
+  });
+  toast(r.liked ? 'ถูกใจแล้ว' : 'เลิกถูกใจแล้ว');
+  renderTimeline();
+}, true);
+
+async function loadMyLikes() {
+  myLikes.clear();
+  if (!user) return;
+  const { data } = await sb.from('title_likes').select('title_id');
+  (data || []).forEach(r => myLikes.add(r.title_id));
+}
+
+// ---------- auth ----------
+function renderAccount() {
+  $('#account').innerHTML = user
+    ? `<span>${esc(user.email)}</span><button class="btn" id="logout">ออกจากระบบ</button>`
+    : `<button class="btn" id="login-open">เข้าสู่ระบบ</button>`;
+  $('#logout')?.addEventListener('click', async () => { await sb.auth.signOut(); });
+  $('#login-open')?.addEventListener('click', openLogin);
+}
+function openLogin() { $('#login').hidden = false; $('#login-msg').textContent = ''; $('#login-email').focus(); }
+function closeLogin() { $('#login').hidden = true; }
+$('#login-cancel').onclick = closeLogin;
+$('#login').addEventListener('click', e => { if (e.target.id === 'login') closeLogin(); });
+$('#login-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = $('#login-email').value.trim();
+  $('#login-go').disabled = true;
+  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } });
+  $('#login-go').disabled = false;
+  $('#login-msg').textContent = error
+    ? (error.status === 429 ? 'ส่งลิงก์บ่อยเกินไป รอสักครู่แล้วลองใหม่' : 'ส่งลิงก์ไม่สำเร็จ: ' + error.message)
+    : `ส่งลิงก์ไปที่ ${email} แล้ว เปิดอีเมลแล้วกดลิงก์ (ถ้าไม่เจอให้ดูในโฟลเดอร์สแปม)`;
+});
+sb.auth.onAuthStateChange(async (_ev, session) => {
+  const was = user?.id;
+  user = session?.user || null;
+  renderAccount();
+  if (was !== user?.id) {
+    await loadMyLikes();
+    closeLogin();
+    renderTimeline();
+    if (!$('#view-ranking').hidden) renderRanking();
+  }
+});
+
+// ---------- ranking ----------
+let rankKind = 'all', rankPeriod = 'all';
+chips('#rank-kinds', Object.entries(KINDS), 'rk', k => { rankKind = k; renderRanking(); });
+document.querySelectorAll('[data-period]').forEach(b => b.onclick = () => {
+  rankPeriod = b.dataset.period;
+  document.querySelectorAll('[data-period]').forEach(x => x.setAttribute('aria-pressed', x === b));
+  renderRanking();
+});
+async function renderRanking() {
+  const list = $('#rank-list');
+  list.innerHTML = '<li class="status-line">กำลังโหลด…</li>';
+  let rows, metric;
+  if (rankPeriod === 'all') {
+    let q = sb.from('title_ranking').select(TIMELINE_COLS);
+    if (rankKind !== 'all') q = q.eq('kind', rankKind);
+    const { data, error } = await q.limit(100);
+    if (error) { list.innerHTML = `<li class="status-line err">โหลดไม่สำเร็จ: ${esc(error.message)}</li>`; return; }
+    rows = data; metric = r => r.like_count;
+  } else {
+    const { data: tr, error } = await sb.rpc('trending_titles', { days: 30, lim: 200 });
+    if (error) { list.innerHTML = `<li class="status-line err">โหลดไม่สำเร็จ: ${esc(error.message)}</li>`; return; }
+    const recent = new Map(tr.map(r => [r.title_id, r.recent_likes]));
+    const { data } = recent.size ? await sb.from('title_timeline').select(TIMELINE_COLS).in('id', [...recent.keys()]) : { data: [] };
+    rows = (data || []).filter(r => rankKind === 'all' || r.kind === rankKind)
+      .sort((a, b) => recent.get(b.id) - recent.get(a.id)).slice(0, 100);
+    metric = r => recent.get(r.id);
+  }
+  if (!rows.length) { list.innerHTML = '<li class="status-line">ยังไม่มีใครกดถูกใจ เป็นคนแรกได้เลย กดหัวใจในหน้ารายละเอียดของเรื่องที่ชอบ</li>'; return; }
+  rows.forEach(r => counts.set(r.id, r.like_count));
+  const max = metric(rows[0]) || 1;
+  list.innerHTML = rows.map((t, i) => `<li class="rank-row${i < 3 ? ' top' : ''}">
+    <span class="no">${i + 1}</span>
+    <span ${posterAttr(t)}><b>${esc(initial(t))}</b><i></i></span>
+    <span class="info">
+      <button data-open="${t.id}">${esc(nameOf(t))}</button>
+      <span class="sub">${t.title_th ? esc(t.title_en) + ' · ' : ''}${t.release_year} · ${t.kind === 'series' ? 'ซีรีส์' : 'หนัง'}${rankPeriod === '30' ? ' · ถูกใจ 30 วัน ' + fmt(metric(t)) : ''}</span>
+      <span class="bar" aria-hidden="true"><i style="width:${(metric(t) / max * 100).toFixed(1)}%"></i></span>
+    </span>
+    ${likeBtn(t, true)}
+  </li>`).join('');
+}
+$('#rank-list').addEventListener('click', e => { const b = e.target.closest('[data-open]'); if (b) openDetail(+b.dataset.open); });
+
+// ---------- tabs ----------
+let rankingLoaded = false;
+function showTab(which) {
+  ['timeline', 'ranking'].forEach(t => {
+    $('#tab-' + t).setAttribute('aria-selected', which === t);
+    $('#view-' + t).hidden = which !== t;
+  });
+  if (which === 'ranking' && !rankingLoaded) { rankingLoaded = true; renderRanking(); }
+  history.replaceState(null, '', which === 'ranking' ? '#ranking' : location.pathname);
+}
+$('#tab-timeline').onclick = () => showTab('timeline');
+$('#tab-ranking').onclick = () => showTab('ranking');
+
+// ---------- start ----------
+renderAccount();
+loadOptions();
+reload();
+if (location.hash === '#ranking') showTab('ranking');
+</script>
+
+</body>
+</html>
