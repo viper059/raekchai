@@ -417,7 +417,7 @@ a.contact:hover { border-color: var(--accent); }
         <div class="contact"><small>FACEBOOK</small><span class="th">ธนฤกษ์ โคตรประทุม</span></div>
       </div>
       <div class="place">พระนครศรีอยุธยา · ประเทศไทย</div>
-      <p class="attrib">ข้อมูลหนัง โปสเตอร์ และนักแสดงจาก <a href="https://www.themoviedb.org/" rel="noopener">TMDB</a> เว็บนี้ใช้ TMDB API แต่ไม่ได้รับการรับรองจาก TMDB · ข้อมูลช่องทางสตรีมจาก <a href="https://www.justwatch.com/" rel="noopener">JustWatch</a></p>
+      <p class="attrib">ข้อมูลหนัง ซีรีส์ และนักแสดงจาก <a href="https://www.wikidata.org/" rel="noopener">Wikidata</a> (CC0) · โปสเตอร์จาก <a href="https://commons.wikimedia.org/" rel="noopener">Wikimedia Commons</a> ตามสัญญาอนุญาตของแต่ละภาพ · ข้อมูลแอปสตรีมและพากย์ไทยตรวจโดยทีมแรกฉาย</p>
     </div>
   </footer>
 </div>
@@ -597,7 +597,7 @@ function ticket(t) {
 function renderTimeline() {
   if (!items.length) {
     const filtered = state.q || state.kind !== 'all' || state.zone !== 'all' || state.genre || state.platform || state.audio;
-    $('#timeline').innerHTML = `<p class="status-line">${filtered ? 'ไม่พบเรื่องที่ตรงกับตัวกรอง ลองล้างคำค้นหรือเลือกตัวกรองอื่น' : 'ยังไม่มีหนังในฐานข้อมูล ระบบกำลังดึงข้อมูลจาก TMDB'}</p>`;
+    $('#timeline').innerHTML = `<p class="status-line">${filtered ? 'ไม่พบเรื่องที่ตรงกับตัวกรอง ลองล้างคำค้นหรือเลือกตัวกรองอื่น' : 'ยังไม่มีหนังในฐานข้อมูล ระบบกำลังดึงข้อมูลจาก Wikidata'}</p>`;
     return;
   }
   const years = new Map();
@@ -680,7 +680,7 @@ async function openDetail(id, keepFocus) {
           <td class="${p.audio_th !== 'none' ? 'yes' : 'no'}">${AUDIO[p.audio_th]}</td>
           <td class="${p.sub_th ? 'yes' : 'no'}">${p.sub_th ? 'มี' : '—'}</td></tr>`).join('')}
       </tbody></table>
-      <p class="rule">เสียงไทยและซับไทยตรวจโดยแอดมิน ช่องที่เป็น — คือยังไม่มีข้อมูลหรือไม่มี</p>` : '<div class="meta"><span class="tag">ยังไม่พบในแอปสตรีมในไทย</span></div>'}
+      <p class="rule">ข้อมูลแอป เสียงไทย และซับไทยตรวจโดยแอดมิน ช่องที่เป็น — คือยังไม่มีข้อมูลหรือไม่มี</p>` : '<div class="meta"><span class="tag">ยังไม่มีข้อมูลแอปสตรีม</span></div>'}
     </div>`;
   $('#close').onclick = closeDetail;
   if (keepFocus) $('#drawer [data-like]')?.focus();
