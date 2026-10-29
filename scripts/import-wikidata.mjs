@@ -189,6 +189,18 @@ async function main() {
   const db = new pg.Pool({ connectionString: env.DATABASE_URL, max: 3, ssl: env.PGSSL === 'off' ? false : { rejectUnauthorized: false } });
   const wd = wdClient(globalThis.fetch, { delayMs: 200 });
   const t0 = Date.now();
+  // เช็กการเชื่อมต่อก่อน ถ้ารหัสผ่านผิดจะหยุดทันที ไม่ต้องเสียเวลาดึงข้อมูลทั้งหมด
+  try {
+    await db.query('select 1 from titles limit 1');
+  } catch (e) {
+    await db.end();
+    const hint = /password authentication failed/.test(e.message)
+      ? 'รหัสผ่านใน DATABASE_URL ไม่ถูกต้อง: ตั้งรหัสผ่านฐานข้อมูลใหม่ใน Supabase แล้วอัปเดต secret DATABASE_URL (อย่าลืมลบ [ ] ออก)'
+      : /ENOTFOUND|ENETUNREACH|ECONNREFUSED/.test(e.message)
+        ? 'ต่อฐานข้อมูลไม่ได้: ตรวจว่าใช้ลิงก์แบบ Session pooler (มีคำว่า pooler.supabase.com)'
+        : 'ต่อฐานข้อมูลไม่ได้';
+    throw new Error(`${hint}\nรายละเอียด: ${e.message}`);
+  }
   try {
     let qids;
     if (mode === 'ids') {
